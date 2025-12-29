@@ -1,0 +1,255 @@
+.manual-emotion-input {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.manual-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.manual-header h3 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.manual-header p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 1rem;
+}
+
+.emotion-selector {
+    margin-bottom: 30px;
+}
+
+.emotion-selector h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.emotion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.emotion-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 10px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.emotion-button:hover:not(:disabled) {
+    border-color: #007bff;
+    background: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+.emotion-button.selected {
+    border-color: #007bff;
+    background: #e3f2fd;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
+.emotion-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.emotion-emoji {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.emotion-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+    text-transform: capitalize;
+}
+
+.manual-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 768px) {
+    .manual-controls {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+.control-group {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: #333;
+    font-size: 1rem;
+}
+
+.control-group input[type="range"] {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: #e9ecef;
+    outline: none;
+    margin-bottom: 10px;
+    -webkit-appearance: none;
+}
+
+.control-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.control-group input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.energy-slider::-webkit-slider-track {
+    background: linear-gradient(90deg, #dc3545 0%, #ffc107 50%, #28a745 100%);
+}
+
+.confidence-slider::-webkit-slider-track {
+    background: linear-gradient(90deg, #ffc107 0%, #28a745 100%);
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.current-state {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    margin-bottom: 30px;
+}
+
+.current-state h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.state-display {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.state-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.state-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.state-value {
+    font-weight: 600;
+    color: #007bff;
+}
+
+.manual-tips {
+    background: #e8f4f8;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #17a2b8;
+}
+
+.manual-tips h4 {
+    margin: 0 0 15px 0;
+    color: #0c5460;
+    font-size: 1.1rem;
+}
+
+.manual-tips ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #0c5460;
+}
+
+.manual-tips li {
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.manual-tips li:last-child {
+    margin-bottom: 0;
+}
+
+/* Animation for state changes */
+.state-value {
+    transition: all 0.3s ease;
+}
+
+.emotion-button.selected .emotion-emoji {
+    animation: bounce 0.5s ease;
+}
+
+@keyframes bounce {
+
+    0%,
+    20%,
+    60%,
+    100% {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-10px);
+    }
+
+    80% {
+        transform: translateY(-5px);
+    }
+}

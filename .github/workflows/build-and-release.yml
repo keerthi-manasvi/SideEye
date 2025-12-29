@@ -1,0 +1,193 @@
+name: Build and Release
+
+on:
+  push:
+    tags: ['v*']
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Install Node.js dependencies
+        run: npm ci
+      
+      - name: Install Python dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          cd ..
+      
+      - name: Run frontend tests
+        run: npm test -- --coverage --watchAll=false
+      
+      - name: Run backend tests
+        run: |
+          cd backend
+          python manage.py test
+          cd ..
+      
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        if: success()
+
+  build:
+    needs: test
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: windows
+          - os: macos-latest
+            platform: mac
+    
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Install system dependencies (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libnss3-dev libatk-bridge2.0-dev libdrm2 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxss1 libasound2-dev
+      
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm run postinstall
+      
+      - name: Download TensorFlow.js models
+        run: npm run download-models
+      
+      - name: Build application
+        run: npm run dist-${{ matrix.platform }}
+        env:
+          # Windows code signing
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          # macOS code signing and notarization
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          # GitHub token for auto-updater
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.platform }}
+          path: dist/
+          retention-days: 30
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+      
+      - name: Prepare release assets
+        run: |
+          mkdir -p release-assets
+          find artifacts/ -type f \( -name "*.exe" -o -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" -o -name "*.zip" \) -exec cp {} release-assets/ \;
+          ls -la release-assets/
+      
+      - name: Extract release notes
+        id: extract-notes
+        run: |
+          # Extract release notes from CHANGELOG.md or create default
+          if [ -f CHANGELOG.md ]; then
+            # Extract notes for current version
+            VERSION=${GITHUB_REF#refs/tags/}
+            awk "/^## \[?${VERSION#v}\]?/,/^## \[?[0-9]/" CHANGELOG.md | head -n -1 | tail -n +2 > release-notes.md
+          else
+            echo "Release ${{ github.ref_name }}" > release-notes.md
+            echo "" >> release-notes.md
+            echo "Automated release created from tag ${{ github.ref_name }}" >> release-notes.md
+          fi
+          
+          # Ensure we have some content
+          if [ ! -s release-notes.md ]; then
+            echo "Release ${{ github.ref_name }}" > release-notes.md
+            echo "" >> release-notes.md
+            echo "See commit history for changes in this release." >> release-notes.md
+          fi
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release-assets/*
+          body_path: release-notes.md
+          draft: false
+          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Update latest release info
+        run: |
+          echo "Release ${{ github.ref_name }} has been published!"
+          echo "Download links:"
+          echo "- Windows: SideEye-Workspace-Setup-*.exe"
+          echo "- macOS: SideEye-Workspace-*.dmg"
+          echo "- Linux: SideEye-Workspace-*.AppImage"
+
+  notify:
+    if: always() && startsWith(github.ref, 'refs/tags/v')
+    needs: [test, build, release]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Notify on success
+        if: needs.release.result == 'success'
+        run: |
+          echo "✅ Release ${{ github.ref_name }} completed successfully!"
+          # Add webhook notifications here if needed
+      
+      - name: Notify on failure
+        if: needs.release.result == 'failure' || needs.build.result == 'failure' || needs.test.result == 'failure'
+        run: |
+          echo "❌ Release ${{ github.ref_name }} failed!"
+          # Add error notifications here if needed

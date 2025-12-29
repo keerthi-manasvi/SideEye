@@ -1,0 +1,266 @@
+.task-list {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.task-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.task-header h2 {
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.task-header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.energy-status {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.energy-indicator {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.energy-indicator label {
+    font-weight: 500;
+    color: #555;
+    min-width: 150px;
+}
+
+.energy-bar {
+    flex: 1;
+    height: 20px;
+    background: #f0f0f0;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.energy-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f44336 0%, #ff9800 50%, #4caf50 100%);
+    transition: width 0.3s ease;
+}
+
+.energy-value {
+    font-weight: bold;
+    color: #333;
+    min-width: 40px;
+}
+
+.energy-recommendation {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+    color: #555;
+    font-style: italic;
+    border-left: 4px solid #61dafb;
+}
+
+.task-input {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.task-input input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.task-input input:focus {
+    outline: none;
+    border-color: #61dafb;
+    box-shadow: 0 0 0 2px rgba(97, 218, 251, 0.2);
+}
+
+.task-input button {
+    padding: 0.75rem 1.5rem;
+    background: #61dafb;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+}
+
+.task-input button:hover {
+    background: #4fa8c5;
+}
+
+.tasks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.task-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.task-section h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.section-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.no-tasks {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    padding: 2rem;
+}
+
+.task-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.task-item:hover {
+    background: #e9ecef;
+    border-color: #61dafb;
+}
+
+.task-item.completed {
+    opacity: 0.7;
+    background: #f0f8f0;
+}
+
+.task-priority {
+    background: #61dafb;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.task-content {
+    flex: 1;
+}
+
+.task-title {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.task-item.completed .task-title {
+    text-decoration: line-through;
+    color: #666;
+}
+
+.task-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.task-category {
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.task-complexity,
+.task-match {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.task-complete,
+.task-undo {
+    padding: 0.5rem 1rem;
+    border: 1px solid #4caf50;
+    background: white;
+    color: #4caf50;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.task-complete:hover,
+.task-undo:hover {
+    background: #4caf50;
+    color: white;
+}
+
+.task-undo {
+    border-color: #ff9800;
+    color: #ff9800;
+}
+
+.task-undo:hover {
+    background: #ff9800;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .task-input {
+        flex-direction: column;
+    }
+
+    .energy-indicator {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .task-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .task-meta {
+        justify-content: center;
+    }
+}

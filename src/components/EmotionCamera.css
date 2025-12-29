@@ -1,0 +1,366 @@
+.emotion-camera {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.camera-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.camera-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.camera-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.camera-controls button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.start-btn {
+    background: #28a745;
+    color: white;
+}
+
+.start-btn:hover:not(:disabled) {
+    background: #218838;
+}
+
+.stop-btn {
+    background: #dc3545;
+    color: white;
+}
+
+.stop-btn:hover:not(:disabled) {
+    background: #c82333;
+}
+
+.toggle-video-btn {
+    background: #6c757d;
+    color: white;
+}
+
+.toggle-video-btn:hover {
+    background: #5a6268;
+}
+
+.camera-controls button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.error-icon {
+    font-size: 1.2rem;
+}
+
+.camera-content {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .camera-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+.video-container {
+    position: relative;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.emotion-video {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.detection-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.1rem;
+}
+
+.video-placeholder {
+    width: 100%;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e9ecef;
+    border-radius: 8px;
+}
+
+.camera-status {
+    text-align: center;
+    padding: 20px;
+}
+
+.camera-status.granted {
+    color: #28a745;
+}
+
+.camera-status.denied {
+    color: #dc3545;
+}
+
+.camera-status.unavailable {
+    color: #ffc107;
+}
+
+.camera-status.checking {
+    color: #6c757d;
+}
+
+.status-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.status-help {
+    font-size: 0.9rem;
+    margin-top: 10px;
+    opacity: 0.8;
+}
+
+.emotion-panel {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    height: fit-content;
+}
+
+.emotion-data.no-data {
+    text-align: center;
+    color: #6c757d;
+    padding: 40px 20px;
+}
+
+.primary-emotion {
+    margin-bottom: 20px;
+}
+
+.primary-emotion h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 1rem;
+}
+
+.emotion-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 4px;
+}
+
+.emotion-name {
+    font-weight: 600;
+    text-transform: capitalize;
+    color: #333;
+}
+
+.emotion-confidence {
+    font-weight: 500;
+    color: #28a745;
+}
+
+.energy-level {
+    margin-bottom: 20px;
+}
+
+.energy-level h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 1rem;
+}
+
+.energy-bar {
+    width: 100%;
+    height: 20px;
+    background: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.energy-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #dc3545 0%, #ffc107 50%, #28a745 100%);
+    transition: width 0.3s ease;
+}
+
+.energy-value {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.emotion-breakdown h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1rem;
+}
+
+.emotion-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.emotion-label {
+    min-width: 80px;
+    font-size: 0.9rem;
+    text-transform: capitalize;
+    color: #333;
+}
+
+.emotion-bar {
+    flex: 1;
+    height: 12px;
+    background: #e9ecef;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.emotion-fill {
+    height: 100%;
+    background: #007bff;
+    transition: width 0.3s ease;
+}
+
+.emotion-value {
+    min-width: 40px;
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-align: right;
+}
+
+.detection-settings {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.detection-settings h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1rem;
+}
+
+.setting-item {
+    margin-bottom: 15px;
+}
+
+.setting-item label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.setting-item input[type="range"] {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.status-indicators {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.status-indicator {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    background: #e9ecef;
+    color: #6c757d;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.status-indicator.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+/* Animation for loading states */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.camera-status.checking .status-icon {
+    animation: pulse 1.5s infinite;
+}

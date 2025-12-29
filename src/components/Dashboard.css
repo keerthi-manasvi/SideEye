@@ -1,0 +1,403 @@
+.dashboard {
+    padding: 1rem;
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.dashboard-header h2 {
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.status-card,
+.emotion-card,
+.wellness-card,
+.actions-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.status-card h3,
+.emotion-card h3,
+.wellness-card h3,
+.actions-card h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.status-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.status-label {
+    font-weight: 500;
+    color: #555;
+}
+
+.status-indicator {
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.emotion-display {
+    text-align: center;
+}
+
+.emotion-primary {
+    margin-bottom: 1rem;
+}
+
+.emotion-label {
+    display: block;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.emotion-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #61dafb;
+    text-transform: capitalize;
+}
+
+.emotion-metrics,
+.wellness-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.metric {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.action-buttons button {
+    padding: 0.75rem 1rem;
+    border: 1px solid #61dafb;
+    background: white;
+    color: #61dafb;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.action-buttons button:hover:not(:disabled) {
+    background: #61dafb;
+    color: white;
+}
+
+.action-buttons button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #ccc;
+    color: #ccc;
+}
+
+/* Enhanced emotion visualization */
+.emotion-visualization {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    margin: 2rem auto;
+    max-width: 1000px;
+}
+
+.emotion-visualization h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.emotion-trend-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.trend-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.trend-label {
+    font-weight: 500;
+    color: #555;
+}
+
+.trend-value {
+    font-weight: bold;
+    text-transform: capitalize;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.trend-value.improving {
+    background: #4CAF50;
+    color: white;
+}
+
+.trend-value.declining {
+    background: #F44336;
+    color: white;
+}
+
+.trend-value.stable {
+    background: #2196F3;
+    color: white;
+}
+
+.history-stats {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.emotion-history-chart {
+    display: flex;
+    align-items: end;
+    gap: 4px;
+    height: 100px;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+
+.emotion-bar {
+    flex: 1;
+    min-height: 4px;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.emotion-bar:hover {
+    opacity: 0.8;
+    transform: scaleY(1.05);
+}
+
+/* Notifications */
+.notifications-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 300px;
+}
+
+.notification {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.notification.success {
+    background: #4CAF50;
+    color: white;
+}
+
+.notification.error {
+    background: #F44336;
+    color: white;
+}
+
+.notification.info {
+    background: #2196F3;
+    color: white;
+}
+
+.notification-message {
+    flex: 1;
+    margin-right: 0.5rem;
+}
+
+.notification-dismiss {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.notification-dismiss:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Demo actions */
+.demo-actions {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    margin: 2rem auto;
+    max-width: 1000px;
+}
+
+.demo-actions h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.demo-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.demo-button {
+    padding: 0.75rem 1.5rem;
+    border: 1px solid #61dafb;
+    background: white;
+    color: #61dafb;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.demo-button:hover {
+    background: #61dafb;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .notifications-container {
+        top: 0.5rem;
+        right: 0.5rem;
+        left: 0.5rem;
+        max-width: none;
+    }
+
+    .emotion-trend-info {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+
+    .demo-buttons {
+        flex-direction: column;
+    }
+
+    .demo-button {
+        width: 100%;
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    .emotion-bar {
+        transition: none;
+    }
+
+    .emotion-bar:hover {
+        transform: none;
+    }
+
+    .notification {
+        animation: none;
+    }
+
+    .demo-button:hover {
+        transform: none;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+
+    .emotion-visualization,
+    .demo-actions {
+        border: 2px solid #000;
+    }
+
+    .emotion-history-chart {
+        border: 1px solid #000;
+    }
+
+    .emotion-bar {
+        border: 1px solid #000;
+    }
+}
