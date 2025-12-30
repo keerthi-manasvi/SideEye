@@ -4,6 +4,8 @@ import WellnessMonitor from './WellnessMonitor';
 import ManualEmotionInput from './ManualEmotionInput';
 import FeedbackModal from './FeedbackModal';
 import ServiceStatus from './ServiceStatus';
+import notificationService from '../services/NotificationService';
+import themeService from '../services/ThemeService';
 
 const Dashboard = () => {
   const [systemStatus, setSystemStatus] = useState({
@@ -38,6 +40,9 @@ const Dashboard = () => {
     // Check system status on component mount
     checkSystemStatus();
     
+    // Set up notification service
+    setupNotificationService();
+    
     // Start session timer
     const sessionStart = Date.now();
     const timer = setInterval(() => {
@@ -47,8 +52,48 @@ const Dashboard = () => {
       }));
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      // Cleanup notification service
+      notificationService.dispose();
+    };
   }, []);
+
+  const setupNotificationService = () => {
+    // Add notification listener
+    notificationService.addListener((notification) => {
+      if (notification.action === 'dismissed' || notification.action === 'clear_all') {
+        setNotifications(prev => prev.filter(n => n.id !== notification.id));
+      } else {
+        setNotifications(prev => [...prev, notification]);
+      }
+    });
+
+    // Add theme change listener
+    themeService.addListener((themeData) => {
+      console.log('Theme changed:', themeData.name);
+      // Could show a brief notification about theme change
+      if (themeData.emotion) {
+        addNotification(`🎨 Theme changed to "${themeData.name}"`, 'info', 2000);
+      }
+    });
+
+    // Set up wellness reminders
+    notificationService.setupWellnessReminders({
+      reminders: {
+        posture: { interval: 30 * 60 * 1000, enabled: true }, // 30 minutes
+        hydration: { interval: 60 * 60 * 1000, enabled: true }, // 1 hour
+        eyeBreak: { interval: 20 * 60 * 1000, enabled: true }, // 20 minutes
+        movement: { interval: 45 * 60 * 1000, enabled: true }  // 45 minutes
+      }
+    });
+
+    // Listen for task view requests
+    window.addEventListener('show-tasks', () => {
+      // This would trigger navigation to tasks view
+      console.log('Show tasks requested');
+    });
+  };
 
   const checkSystemStatus = async () => {
     // Check Django service
@@ -94,6 +139,9 @@ const Dashboard = () => {
         const updated = [...prev, newEmotion].slice(-50);
         return updated;
       });
+
+      // Process emotion data through notification service
+      notificationService.processEmotionData(wellnessData.emotion);
     }
 
     // Update wellness metrics if available
@@ -124,6 +172,9 @@ const Dashboard = () => {
       const updated = [...prev, newEmotion].slice(-50);
       return updated;
     });
+
+    // Process emotion data through notification service
+    notificationService.processEmotionData(emotionData);
 
     // Update TensorFlow status when we receive emotion data
     setSystemStatus(prev => ({ ...prev, tensorflow: 'ready' }));
@@ -203,8 +254,13 @@ const Dashboard = () => {
     return 'stable';
   }, [emotionHistory]);
 
-  const dismissNotification = useCallback((notificationId) => {
-    setNotifications(prev => prev.filter(n => n.id !== notificationId));
+  const dismissNotification = useCallback((notificationId, action = 'dismiss') => {
+    // Handle notification actions through the service
+    if (action !== 'dismiss') {
+      notificationService.handleNotificationAction(notificationId, action);
+    } else {
+      notificationService.dismissNotification(notificationId);
+    }
   }, []);
 
   const handleStartMonitoring = () => {
@@ -370,13 +426,32 @@ const Dashboard = () => {
               role="alert"
             >
               <span className="notification-message">{notification.message}</span>
-              <button 
-                className="notification-dismiss"
-                onClick={() => dismissNotification(notification.id)}
-                aria-label="Dismiss notification"
-              >
-                ×
-              </button>
+              
+              {/* Notification Actions */}
+              {notification.actions && notification.actions.length > 0 && (
+                <div className="notification-actions">
+                  {notification.actions.map((action, index) => (
+                    <button
+                      key={index}
+                      className={`notification-action ${action.action === 'dismiss' ? 'dismiss' : 'primary'}`}
+                      onClick={() => dismissNotification(notification.id, action.action)}
+                    >
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+              
+              {/* Default dismiss button if no actions */}
+              {(!notification.actions || notification.actions.length === 0) && (
+                <button 
+                  className="notification-dismiss"
+                  onClick={() => dismissNotification(notification.id)}
+                  aria-label="Dismiss notification"
+                >
+                  ×
+                </button>
+              )}
             </div>
           ))}
         </div>

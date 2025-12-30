@@ -157,7 +157,7 @@ const useEmotionDetection = () => {
   useEffect(() => {
     return () => {
       if (engineRef.current) {
-        engineRef.current.stopDetection();
+        engineRef.current.dispose(); // Use dispose instead of stopDetection
       }
     };
   }, []);

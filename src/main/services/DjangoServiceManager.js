@@ -49,7 +49,22 @@ class DjangoServiceManager extends EventEmitter {
 
     if (this.options.isDev) {
       this.emit('info', 'Development mode: Django service managed externally');
-      return true;
+      // In dev mode, just check if the service is available and mark as running
+      try {
+        const isHealthy = await this._checkExternalService();
+        if (isHealthy) {
+          this.isRunning = true;
+          this._startHealthMonitoring();
+          this.emit('started');
+          return true;
+        } else {
+          this.emit('warning', 'External Django service not available');
+          return false;
+        }
+      } catch (error) {
+        this.emit('error', `Failed to connect to external Django service: ${error.message}`);
+        return false;
+      }
     }
 
     this.isStarting = true;
@@ -238,14 +253,32 @@ class DjangoServiceManager extends EventEmitter {
 
   // Private methods
 
+  async _checkExternalService() {
+    try {
+      const response = await fetch(`http://${this.options.host}:${this.options.port}/api/health/`, {
+        method: 'GET',
+        timeout: 5000
+      });
+      
+      return response.ok;
+    } catch (error) {
+      return false;
+    }
+  }
+
   async _spawnDjangoProcess() {
     const djangoPath = path.join(__dirname, '../../../backend');
     const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
     
+    console.log(`Starting Django process in: ${djangoPath}`);
+    console.log(`Using Python command: ${pythonCmd}`);
+    console.log(`Server port: ${this.options.port}`);
+    
     this.process = spawn(pythonCmd, ['manage.py', 'runserver', `${this.options.port}`], {
       cwd: djangoPath,
       stdio: ['pipe', 'pipe', 'pipe'],
-      detached: false
+      detached: false,
+      shell: process.platform === 'win32' // Use shell on Windows for better compatibility
     });
 
     this.process.stdout.on('data', (data) => {

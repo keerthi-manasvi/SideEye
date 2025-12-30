@@ -117,6 +117,28 @@ class EmotionDetectionEngine {
       this.detectionInterval = null;
     }
 
+    // Don't stop the camera stream immediately - keep it alive for quick restart
+    // Only stop if explicitly requested or on component unmount
+    if (this.stream && this.shouldStopStream) {
+      this.stream.getTracks().forEach(track => track.stop());
+      this.stream = null;
+    }
+
+    console.log('Emotion detection stopped');
+  }
+
+  /**
+   * Completely stop and release all resources including camera stream
+   */
+  dispose() {
+    this.isRunning = false;
+    this.shouldStopStream = true;
+    
+    if (this.detectionInterval) {
+      clearInterval(this.detectionInterval);
+      this.detectionInterval = null;
+    }
+
     if (this.stream) {
       this.stream.getTracks().forEach(track => track.stop());
       this.stream = null;
@@ -126,7 +148,7 @@ class EmotionDetectionEngine {
       this.videoElement.srcObject = null;
     }
 
-    console.log('Emotion detection stopped');
+    console.log('Emotion detection engine disposed');
   }
 
   /**

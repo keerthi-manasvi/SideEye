@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-sideeye-local-development-key-change-in-production
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', '*']
 
 
 # Application definition
@@ -138,6 +138,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
     ],
+    'EXCEPTION_HANDLER': 'api.exceptions.custom_exception_handler',
 }
 
 # CORS settings for Electron app
@@ -151,31 +152,51 @@ CORS_ALLOW_CREDENTIALS = True
 # Allow all origins in development (since Electron uses file:// protocol)
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 
+# YouTube API Configuration (Optional)
+YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY', None)
+
 # Logging configuration
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': BASE_DIR / 'sideeye.log',
+            'formatter': 'verbose',
         },
         'console': {
-            'level': 'DEBUG',
+            'level': 'WARNING',  # Reduced console noise
             'class': 'logging.StreamHandler',
+            'formatter': 'simple',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['file', 'console'],
             'level': 'INFO',
-            'propagate': True,
+            'propagate': False,  # Prevent duplicate logs
         },
         'api': {
             'handlers': ['file', 'console'],
-            'level': 'DEBUG',
-            'propagate': True,
+            'level': 'INFO',  # Reduced from DEBUG to reduce noise
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['file'],
+            'level': 'WARNING',  # Only log warnings and errors for requests
+            'propagate': False,
         },
     },
 }
