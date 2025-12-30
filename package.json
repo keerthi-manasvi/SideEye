@@ -24,7 +24,10 @@
     "download-models": "node scripts/download-models.js",
     "setup": "npm install && npm run download-models",
     "postinstall": "node scripts/install-python-deps.js",
-    "first-run-setup": "node scripts/first-run-setup.js"
+    "first-run-setup": "node scripts/first-run-setup.js",
+    "validate": "node build/validate.js",
+    "build-custom": "node build/build.js",
+    "prebuild": "npm run validate"
   },
   "keywords": [
     "electron",

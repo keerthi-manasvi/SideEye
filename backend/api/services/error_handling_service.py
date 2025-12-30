@@ -1,3 +1,4 @@
+
 import logging
 import traceback
 import json
@@ -233,6 +234,296 @@ class ErrorHandlingService:
             stats['recovery_rate'] = 0
         
         return stats
+    
+    def get_recent_errors(self, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get recent errors with optional limit"""
+        return self.error_log[:limit]
+    
+    def get_error_by_id(self, error_id: str) -> Optional[Dict[str, Any]]:
+        """Get error details by ID"""
+        # First check cache
+        cached_error = cache.get(f"error_{error_id}")
+        if cached_error:
+            return cached_error
+        
+        # Search in memory log
+        for error in self.error_log:
+            if error['id'] == error_id:
+                return error
+        
+        return None
+    
+    def get_user_friendly_error_message(self, error: Dict[str, Any]) -> str:
+        """Generate user-friendly error message"""
+        if not error:
+            return "An unknown error occurred"
+        
+        error_type = error.get('type', 'unknown')
+        severity = error.get('severity', 'low')
+        
+        # Generate friendly messages based on error type and severity
+        if 'frontend' in error_type.lower():
+            if severity == 'critical':
+                return "A critical error occurred in the application. Please refresh the page and try again."
+            elif severity == 'high':
+                return "An error occurred while processing your request. Please try again."
+            else:
+                return "A minor issue was detected. The application should continue working normally."
+        
+        elif 'api' in error_type.lower():
+            return "There was a problem connecting to the server. Please check your connection and try again."
+        
+        elif 'database' in error_type.lower():
+            return "There was a problem accessing your data. Please try again in a moment."
+        
+        else:
+            return f"An error occurred: {error.get('message', 'Unknown error')}"
+    
+    def create_error_report(self, error_id: str) -> Dict[str, Any]:
+        """Create comprehensive error report"""
+        error = self.get_error_by_id(error_id)
+        
+        if not error:
+            return {'error': 'Error not found'}
+        
+        # Get similar errors
+        similar_errors = []
+        error_type = error.get('type')
+        for e in self.error_log:
+            if e['id'] != error_id and e.get('type') == error_type:
+                similar_errors.append(e)
+                if len(similar_errors) >= 5:
+                    break
+        
+        return {
+            'error_details': error,
+            'similar_errors': similar_errors,
+            'user_friendly_message': self.get_user_friendly_error_message(error),
+            'recovery_suggestions': self._get_recovery_suggestions(error),
+            'timestamp': timezone.now().isoformat()
+        }
+    
+    def _get_recovery_suggestions(self, error: Dict[str, Any]) -> List[str]:
+        """Get recovery suggestions for an error"""
+        error_type = error.get('type', '').lower()
+        suggestions = []
+        
+        if 'frontend' in error_type:
+            suggestions.extend([
+                "Refresh the page and try again",
+                "Clear your browser cache",
+                "Try using a different browser"
+            ])
+        elif 'api' in error_type:
+            suggestions.extend([
+                "Check your internet connection",
+                "Try again in a few moments",
+                "Contact support if the problem persists"
+            ])
+        elif 'database' in error_type:
+            suggestions.extend([
+                "Wait a moment and try again",
+                "Check if the service is running",
+                "Contact an administrator"
+            ])
+        else:
+            suggestions.append("Try refreshing the page or restarting the application")
+        
+        return suggestions
+    
+    def clear_error_log(self):
+        """Clear the error log"""
+        self.error_log.clear()
+        
+        # Clear cached errors
+        cache_keys = cache.keys()
+        error_keys = [key for key in cache_keys if key.startswith('error_')]
+        if error_keys:
+            cache.delete_many(error_keys)
+    
+    def export_error_log(self) -> str:
+        """Export error log as JSON"""
+        export_data = {
+            'export_timestamp': timezone.now().isoformat(),
+            'total_errors': len(self.error_log),
+            'errors': self.error_log
+        }
+        return json.dumps(export_data, indent=2)
+    
+    def get_system_health_status(self) -> Dict[str, Any]:
+        """Get comprehensive system health status"""
+        now = timezone.now()
+        startup_time_str = cache.get('django_startup_time')
+        
+        if startup_time_str:
+            startup_time = datetime.fromisoformat(startup_time_str.replace('Z', '+00:00'))
+            uptime_seconds = (now - startup_time).total_seconds()
+        else:
+            uptime_seconds = 0
+        
+        # Get recent error counts
+        recent_errors = self.get_recent_errors(50)
+        critical_errors = [e for e in recent_errors if e.get('severity') == 'critical']
+        high_errors = [e for e in recent_errors if e.get('severity') == 'high']
+        
+        # Determine overall status
+        if len(critical_errors) > 0:
+            overall_status = 'critical'
+        elif len(high_errors) > 3:
+            overall_status = 'degraded'
+        elif len(recent_errors) > 10:
+            overall_status = 'warning'
+        else:
+            overall_status = 'healthy'
+        
+        return {
+            'overall_status': overall_status,
+            'uptime_seconds': uptime_seconds,
+            'error_counts': {
+                'total_recent': len(recent_errors),
+                'critical': len(critical_errors),
+                'high': len(high_errors)
+            },
+            'services': {
+                'error_handling': 'active',
+                'logging': 'active'
+            },
+            'recovery_status': {
+                'auto_recovery_enabled': True,
+                'recent_recoveries': len([e for e in recent_errors if e.get('recovery_attempted')])
+            },
+            'timestamp': now.isoformat()
+        }
+    
+    def check_and_attempt_scheduled_recoveries(self) -> Dict[str, Any]:
+        """Check and attempt any scheduled recoveries"""
+        # This is a placeholder for scheduled recovery logic
+        return {
+            'scheduled_recoveries_checked': True,
+            'recoveries_attempted': 0,
+            'recoveries_successful': 0
+        }
+    
+    def enable_offline_mode(self, reason: str = 'manual') -> bool:
+        """Enable offline mode"""
+        try:
+            cache.set('offline_mode_enabled', True, timeout=None)
+            cache.set('offline_mode_reason', reason, timeout=None)
+            cache.set('offline_mode_timestamp', timezone.now().isoformat(), timeout=None)
+            logger.info(f"Offline mode enabled: {reason}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to enable offline mode: {e}")
+            return False
+    
+    def disable_offline_mode(self) -> bool:
+        """Disable offline mode"""
+        try:
+            was_offline = cache.get('offline_mode_enabled', False)
+            cache.delete('offline_mode_enabled')
+            cache.delete('offline_mode_reason')
+            cache.delete('offline_mode_timestamp')
+            logger.info("Offline mode disabled")
+            return was_offline
+        except Exception as e:
+            logger.error(f"Failed to disable offline mode: {e}")
+            return False
+    
+    def is_offline_mode(self) -> bool:
+        """Check if system is in offline mode"""
+        return cache.get('offline_mode_enabled', False)
+    
+    def get_offline_mode_info(self) -> Dict[str, Any]:
+        """Get offline mode information"""
+        is_offline = self.is_offline_mode()
+        return {
+            'offline': is_offline,
+            'reason': cache.get('offline_mode_reason', '') if is_offline else '',
+            'timestamp': cache.get('offline_mode_timestamp', '') if is_offline else '',
+            'duration_seconds': 0  # Could calculate based on timestamp
+        }
+    
+    def handle_service_degradation(self, service_name: str, error: Exception, degradation_level: str = 'partial') -> Dict[str, Any]:
+        """Handle service degradation"""
+        degradation_key = f"service_degradation_{service_name}"
+        
+        degradation_info = {
+            'service_name': service_name,
+            'degradation_level': degradation_level,
+            'error_message': str(error),
+            'timestamp': timezone.now().isoformat(),
+            'recovery_attempted': False
+        }
+        
+        # Store degradation info
+        cache.set(degradation_key, degradation_info, timeout=3600)  # 1 hour
+        
+        # Log the degradation
+        self.log_error({
+            'type': 'service_degradation',
+            'message': f"Service {service_name} degraded: {degradation_level}",
+            'context': {
+                'service_name': service_name,
+                'degradation_level': degradation_level,
+                'error': str(error)
+            }
+        })
+        
+        return {
+            'success': True,
+            'service_name': service_name,
+            'degradation_level': degradation_level,
+            'timestamp': degradation_info['timestamp']
+        }
+    
+    def handle_memory_pressure(self) -> bool:
+        """Handle memory pressure by cleaning up caches"""
+        try:
+            # Clear old error cache entries
+            cache_keys = cache.keys()
+            error_keys = [key for key in cache_keys if key.startswith('error_')]
+            
+            # Keep only recent errors (last 100)
+            if len(error_keys) > 100:
+                old_keys = error_keys[100:]
+                cache.delete_many(old_keys)
+            
+            # Trim in-memory error log
+            if len(self.error_log) > 500:
+                self.error_log = self.error_log[:500]
+            
+            logger.info("Memory cleanup completed")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Memory cleanup failed: {e}")
+            return False
+    
+    def _get_service_recovery_suggestions(self, service_name: str) -> List[str]:
+        """Get recovery suggestions for a specific service"""
+        suggestions = {
+            'api': [
+                "Check API endpoint availability",
+                "Verify network connectivity",
+                "Review API rate limits"
+            ],
+            'database': [
+                "Check database connection",
+                "Verify database server status",
+                "Review connection pool settings"
+            ],
+            'frontend': [
+                "Refresh the browser page",
+                "Clear browser cache",
+                "Check JavaScript console for errors"
+            ]
+        }
+        
+        return suggestions.get(service_name.lower(), [
+            "Restart the service",
+            "Check service logs",
+            "Verify service configuration"
+        ])
 
 
 # Global instance

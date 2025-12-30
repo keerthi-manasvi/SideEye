@@ -1,0 +1,28 @@
+{
+  "setupDate": "2025-12-30T07:31:13.569Z",
+  "version": "1.0.0",
+  "user": {
+    "name": "Karuna"
+  },
+  "music": {
+    "preferredGenres": [
+      "pop"
+    ],
+    "energyMappings": {}
+  },
+  "themes": {
+    "preferredPalettes": [
+      "high-contrast"
+    ],
+    "emotionMappings": {}
+  },
+  "notifications": {
+    "frequency": 5,
+    "wellnessInterval": 60,
+    "tone": "sarcastic"
+  },
+  "privacy": {
+    "dataRetentionDays": 30,
+    "enableAnalytics": false
+  }
+}
