@@ -1,4 +1,4 @@
-# SideEye Workspace
+# SideEye - Judging you into productivity
 
 A privacy-focused biometric monitoring application that automatically optimizes your workspace environment based on your emotional state, energy levels, and wellness metrics.
 
@@ -92,26 +92,20 @@ SideEye uses a hybrid architecture combining:
 ### Development Commands
 
 ```bash
+#Start Django server
+python manage.py runserver
+
 # Start development environment (Django + Electron)
 npm run dev
 
 # Start only React development server
 npm run react-dev
 
-# Start only Django development server
-npm run django-dev
+# Start Electron
+npm run electron
 
 # Run tests
 npm test
-
-# Build for production
-npm run build
-
-# Package for distribution
-npm run dist
-
-# Package for all platforms
-npm run dist-all
 ```
 
 ### Project Structure
