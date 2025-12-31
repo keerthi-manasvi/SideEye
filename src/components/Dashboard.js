@@ -90,9 +90,9 @@ const Dashboard = () => {
     // Add theme change listener
     themeService.addListener((themeData) => {
       console.log('Theme changed:', themeData.name);
-      // Could show a brief notification about theme change
+      // Show a brief notification about theme change
       if (themeData.emotion) {
-        addNotification(`🎨 Theme changed to "${themeData.name}"`, 'info', 2000);
+        addNotification(`🎨 Theme changed to "${themeData.name}" based on ${themeData.emotion} emotion`, 'info', 3000);
       }
     });
 
@@ -212,6 +212,15 @@ const Dashboard = () => {
 
       // Process emotion data through notification service
       notificationService.processEmotionData(wellnessData.emotion);
+
+      // Apply theme based on emotion (lowered threshold for better responsiveness)
+      console.log('Emotion detected:', wellnessData.emotion.primaryEmotion, 'Confidence:', wellnessData.emotion.confidence);
+      if (wellnessData.emotion.confidence > 0.4) {
+        console.log('Applying theme for emotion:', wellnessData.emotion.primaryEmotion);
+        themeService.applyEmotionTheme(wellnessData.emotion.primaryEmotion, wellnessData.emotion.confidence);
+      } else {
+        console.log('Confidence too low for theme change:', wellnessData.emotion.confidence);
+      }
     }
 
     // Update wellness metrics if available
@@ -245,6 +254,15 @@ const Dashboard = () => {
 
     // Process emotion data through notification service
     notificationService.processEmotionData(emotionData);
+
+    // Apply theme based on emotion (lowered threshold for better responsiveness)
+    console.log('Direct emotion detected:', emotionData.primaryEmotion, 'Confidence:', emotionData.confidence);
+    if (emotionData.confidence > 0.4) {
+      console.log('Applying theme for direct emotion:', emotionData.primaryEmotion);
+      themeService.applyEmotionTheme(emotionData.primaryEmotion, emotionData.confidence);
+    } else {
+      console.log('Direct emotion confidence too low for theme change:', emotionData.confidence);
+    }
 
     // Update TensorFlow status when we receive emotion data
     setSystemStatus(prev => ({ ...prev, tensorflow: 'ready' }));
@@ -532,7 +550,7 @@ const Dashboard = () => {
 
       {/* Demo Feedback Modal Trigger */}
       <div className="demo-actions">
-        <h3>Demo AI Suggestions</h3>
+        <h3>Demo AI Suggestions & Theme Testing</h3>
         <div className="demo-buttons">
           <button 
             onClick={() => showFeedbackModal('music', {
@@ -553,6 +571,27 @@ const Dashboard = () => {
             className="demo-button"
           >
             Test Theme Suggestion
+          </button>
+          <button 
+            onClick={() => {
+              const emotions = ['happy', 'sad', 'angry', 'surprised', 'fearful', 'neutral'];
+              const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+              themeService.applyEmotionTheme(randomEmotion, 0.8);
+              addNotification(`🎨 Applied ${randomEmotion} theme for testing!`, 'info');
+            }}
+            className="demo-button"
+            style={{ backgroundColor: 'var(--theme-accent)', color: 'white', border: 'none' }}
+          >
+            🎨 Test Random Theme
+          </button>
+          <button 
+            onClick={() => {
+              themeService.resetToDefault();
+              addNotification('🔄 Reset to default theme', 'info');
+            }}
+            className="demo-button"
+          >
+            Reset Theme
           </button>
         </div>
       </div>
