@@ -43,6 +43,23 @@ const Dashboard = () => {
     // Set up notification service
     setupNotificationService();
     
+    // Set up periodic camera status checking
+    const cameraCheckInterval = setInterval(async () => {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        
+        if (videoDevices.length === 0) {
+          setSystemStatus(prev => ({ ...prev, camera: 'disconnected' }));
+        } else if (systemStatus.camera === 'disconnected') {
+          // Camera was reconnected, recheck full status
+          checkSystemStatus();
+        }
+      } catch (error) {
+        console.error('Error checking camera devices:', error);
+      }
+    }, 3000); // Check every 3 seconds
+    
     // Start session timer
     const sessionStart = Date.now();
     const timer = setInterval(() => {
@@ -54,6 +71,7 @@ const Dashboard = () => {
 
     return () => {
       clearInterval(timer);
+      clearInterval(cameraCheckInterval);
       // Cleanup notification service
       notificationService.dispose();
     };
@@ -98,24 +116,76 @@ const Dashboard = () => {
   const checkSystemStatus = async () => {
     // Check Django service
     try {
+      let djangoResponse;
+      
       if (window.electronAPI) {
-        const response = await window.electronAPI.callDjangoAPI('/health/', 'GET');
+        // Electron mode - use IPC
+        djangoResponse = await window.electronAPI.callDjangoAPI('/api/health/', 'GET');
         setSystemStatus(prev => ({
           ...prev,
-          django: response.success ? 'connected' : 'disconnected'
+          django: djangoResponse.success ? 'connected' : 'disconnected'
         }));
+      } else {
+        // Browser mode - direct HTTP call
+        try {
+          const response = await fetch('http://127.0.0.1:8000/api/health/', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            console.log('Django health check response:', data);
+            setSystemStatus(prev => ({ ...prev, django: 'connected' }));
+          } else {
+            console.log('Django health check failed:', response.status);
+            setSystemStatus(prev => ({ ...prev, django: 'disconnected' }));
+          }
+        } catch (fetchError) {
+          // Django server not running or not accessible
+          console.log('Django fetch error:', fetchError);
+          setSystemStatus(prev => ({ ...prev, django: 'disconnected' }));
+        }
       }
     } catch (error) {
-      console.log('Django service not yet available');
+      console.log('Django service not yet available:', error);
+      setSystemStatus(prev => ({ ...prev, django: 'disconnected' }));
     }
 
-    // Check camera access
+    // Check camera availability and access
     try {
+      // First check if any video input devices are available
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+      
+      if (videoDevices.length === 0) {
+        setSystemStatus(prev => ({ ...prev, camera: 'disconnected' }));
+        return;
+      }
+
+      // Try to access the camera to check permissions
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      setSystemStatus(prev => ({ ...prev, camera: 'connected' }));
-      stream.getTracks().forEach(track => track.stop()); // Stop the stream
+      
+      // Check if the stream is actually active
+      const videoTracks = stream.getVideoTracks();
+      if (videoTracks.length > 0 && videoTracks[0].readyState === 'live') {
+        setSystemStatus(prev => ({ ...prev, camera: 'connected' }));
+      } else {
+        setSystemStatus(prev => ({ ...prev, camera: 'disconnected' }));
+      }
+      
+      // Stop the stream
+      stream.getTracks().forEach(track => track.stop());
     } catch (error) {
-      setSystemStatus(prev => ({ ...prev, camera: 'denied' }));
+      if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        setSystemStatus(prev => ({ ...prev, camera: 'disconnected' }));
+      } else if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        setSystemStatus(prev => ({ ...prev, camera: 'denied' }));
+      } else {
+        setSystemStatus(prev => ({ ...prev, camera: 'error' }));
+      }
     }
 
     // TensorFlow.js will be loaded in future tasks

@@ -104,22 +104,34 @@ const useEmotionDetection = () => {
   // Check camera availability
   const checkCameraAvailability = useCallback(async () => {
     try {
+      // First check if any video input devices are available
       const devices = await navigator.mediaDevices.enumerateDevices();
-      const hasCamera = devices.some(device => device.kind === 'videoinput');
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
       
-      if (!hasCamera) {
+      if (videoDevices.length === 0) {
         setCameraStatus('unavailable');
         return false;
       }
 
-      // Try to access camera
+      // Try to access the camera to check permissions and actual connectivity
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        setCameraStatus('granted');
-        stream.getTracks().forEach(track => track.stop());
-        return true;
+        
+        // Check if the stream is actually active
+        const videoTracks = stream.getVideoTracks();
+        if (videoTracks.length > 0 && videoTracks[0].readyState === 'live') {
+          setCameraStatus('granted');
+          stream.getTracks().forEach(track => track.stop());
+          return true;
+        } else {
+          setCameraStatus('unavailable');
+          stream.getTracks().forEach(track => track.stop());
+          return false;
+        }
       } catch (error) {
-        if (error.name === 'NotAllowedError') {
+        if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+          setCameraStatus('unavailable');
+        } else if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
           setCameraStatus('denied');
         } else {
           setCameraStatus('unavailable');
