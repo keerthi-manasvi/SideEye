@@ -1,0 +1,28 @@
+{
+  "setupDate": "2025-12-30T19:33:31.142Z",
+  "version": "1.0.0",
+  "user": {
+    "name": "manju"
+  },
+  "music": {
+    "preferredGenres": [
+      "jazz"
+    ],
+    "energyMappings": {}
+  },
+  "themes": {
+    "preferredPalettes": [
+      "warm"
+    ],
+    "emotionMappings": {}
+  },
+  "notifications": {
+    "frequency": 5,
+    "wellnessInterval": 60,
+    "tone": "sarcastic"
+  },
+  "privacy": {
+    "dataRetentionDays": 30,
+    "enableAnalytics": false
+  }
+}
